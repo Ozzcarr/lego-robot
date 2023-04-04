@@ -6,7 +6,7 @@ This is a repository for the development of the lego robot that shall lift items
 ## How to use
 
 ### Main branch
-Branch for stable product - Merge from the develop branch after every workshop
+Branch for stable product - Merge from the develop branch after every workshop.
 
 ### Develop branch
 The branch for developing the features - Merge from feature branch when a feature is developed.
