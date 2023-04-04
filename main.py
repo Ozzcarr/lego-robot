@@ -22,6 +22,8 @@ LEFT = 160
 MIDDLE = 100
 RIGHT = 40
 
+# Hello
+
 
 def calibration():
     """Calibration of the sensors"""
