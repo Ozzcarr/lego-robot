@@ -1,6 +1,7 @@
+# LEGO Robot
+
 ![The robot](http://robotsquare.com/wp-content/uploads/2013/10/45544_crane-550x227.jpg)
 
-# LEGO Robot
 This is a repository for the development of the lego robot that shall lift items.
 
 ## How to use
