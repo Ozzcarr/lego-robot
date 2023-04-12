@@ -78,6 +78,10 @@ def release(position):
     elbow_motor.run_target(60, 0)
 
 
+def color():
+    return color_sensor.color()
+
+
 def main():
     """Main function"""
     calibration()
