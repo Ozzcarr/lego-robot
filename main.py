@@ -73,7 +73,7 @@ def pickup(position):
 def release(position):
     """Release item at position"""
     base_motor.run_target(60, position)
-    elbow_motor.run_target(60, -40)
+    elbow_motor.run_until_stalled(60, then=Stop.HOLD, duty_limit=50)
     gripper_motor.run_target(200, -90)
     elbow_motor.run_target(60, 0)
 
