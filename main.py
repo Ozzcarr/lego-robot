@@ -1,7 +1,7 @@
 #!/usr/bin/env pybricks-micropython
 from pybricks.ev3devices import ColorSensor, Motor, TouchSensor
 from pybricks.hubs import EV3Brick
-from pybricks.parameters import Direction, Port, Stop
+from pybricks.parameters import Direction, Port, Stop, Color
 from pybricks.tools import wait
 
 
@@ -39,7 +39,7 @@ def calibration():
     elbow_motor.run(15)
     while color_sensor.reflection() > 0:
         wait(10)
-    elbow_motor.run_time(20, 500)
+    elbow_motor.run_time(20, 400)
     elbow_motor.reset_angle(0)
     elbow_motor.hold()
 
@@ -65,7 +65,7 @@ def calibration():
 def pickup(position):
     """Pickup item at position"""
     base_motor.run_target(60, position)
-    elbow_motor.run_target(60, -40)
+    elbow_motor.run_until_stalled(60, then=Stop.HOLD, duty_limit=50)
     gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
     elbow_motor.run_target(60, 0)
 
@@ -85,7 +85,18 @@ def color():
 def main():
     """Main function"""
     calibration()
-    # while True:
+
+    rightColor = Color.RED
+
+    while True:
+        pickup(MIDDLE)
+        ev3.screen.clear()
+        ev3.screen.draw_text(40, 50, color())
+        if color() == rightColor:
+            release(RIGHT)
+        else:
+            release(LEFT)
+
 
 
 if __name__ == "__main__":
