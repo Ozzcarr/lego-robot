@@ -1,7 +1,7 @@
 #!/usr/bin/env pybricks-micropython
 from pybricks.ev3devices import ColorSensor, Motor, TouchSensor
 from pybricks.hubs import EV3Brick
-from pybricks.parameters import Direction, Port, Stop
+from pybricks.parameters import Direction, Port, Stop, Color
 from pybricks.tools import wait
 
 
@@ -39,7 +39,7 @@ def calibration():
     elbow_motor.run(15)
     while color_sensor.reflection() > 0:
         wait(10)
-    elbow_motor.run_time(20, 500)
+    elbow_motor.run_time(20, 400)
     elbow_motor.reset_angle(0)
     elbow_motor.hold()
 
@@ -51,21 +51,17 @@ def calibration():
     base_motor.hold()
 
     # Play music to indicate that the initialization is complete.
-    the_lick = ["D4/8", "E4/8", "F4/8", "G4/8", "E4/4", "C4/8", "D4/4"]
-    triplets = ["C4/8", "C4/8", "C4/8", "C4/4"]
-    ending = ["Ab3/4", "Bb3/4", "C4/8.", "Bb3/16", "C4/4"]
+    nokia = ["E5/8", "D5/8", "F#4/4", "G#4/4", "C#5/8", "B4/8", "D4/4", "E4/4", "B4/8", "A4/8", "C#4/4", "E4/4", "A4/2", "R/2"]
 
-    ev3.speaker.play_notes(the_lick, tempo=160)
-    wait(1000)
-    ev3.speaker.play_notes(triplets, tempo=180)
-    wait(100)
-    ev3.speaker.play_notes(ending, tempo=150)
+    ev3.speaker.play_notes(nokia, tempo=200)
+    ev3.speaker.play_notes(nokia, tempo=200)
+
 
 
 def pickup(position):
     """Pickup item at position"""
     base_motor.run_target(60, position)
-    elbow_motor.run_target(60, -40)
+    elbow_motor.run_until_stalled(-80, then=Stop.COAST, duty_limit=30)
     gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
     elbow_motor.run_target(60, 0)
 
@@ -73,15 +69,33 @@ def pickup(position):
 def release(position):
     """Release item at position"""
     base_motor.run_target(60, position)
-    elbow_motor.run_target(60, -40)
+    elbow_motor.run_until_stalled(-80, then=Stop.COAST, duty_limit=30)
     gripper_motor.run_target(200, -90)
     elbow_motor.run_target(60, 0)
+
+
+def color():
+    return color_sensor.color()
 
 
 def main():
     """Main function"""
     calibration()
-    # while True:
+
+    rightColor = Color.RED
+    leftColor = Color.BLUE
+
+    while True:
+        pickup(MIDDLE)
+        ev3.screen.clear()
+        ev3.screen.draw_text(40, 50, color())
+        if color() == rightColor:
+            release(RIGHT)
+        elif color() == leftColor:
+            release(LEFT)
+        else:
+            release(MIDDLE)
+
 
 
 if __name__ == "__main__":
