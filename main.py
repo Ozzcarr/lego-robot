@@ -65,7 +65,7 @@ def calibration():
 def pickup(position):
     """Pickup item at position"""
     base_motor.run_target(60, position)
-    elbow_motor.run_until_stalled(60, then=Stop.HOLD, duty_limit=50)
+    elbow_motor.run_until_stalled(-80, then=Stop.COAST, duty_limit=30)
     gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
     elbow_motor.run_target(60, 0)
 
@@ -73,7 +73,7 @@ def pickup(position):
 def release(position):
     """Release item at position"""
     base_motor.run_target(60, position)
-    elbow_motor.run_until_stalled(60, then=Stop.HOLD, duty_limit=50)
+    elbow_motor.run_until_stalled(-80, then=Stop.COAST, duty_limit=30)
     gripper_motor.run_target(200, -90)
     elbow_motor.run_target(60, 0)
 
@@ -87,6 +87,7 @@ def main():
     calibration()
 
     rightColor = Color.RED
+    leftColor = Color.BLUE
 
     while True:
         pickup(MIDDLE)
@@ -94,8 +95,10 @@ def main():
         ev3.screen.draw_text(40, 50, color())
         if color() == rightColor:
             release(RIGHT)
-        else:
+        elif color() == leftColor:
             release(LEFT)
+        else:
+            release(MIDDLE)
 
 
 
