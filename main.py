@@ -51,15 +51,11 @@ def calibration():
     base_motor.hold()
 
     # Play music to indicate that the initialization is complete.
-    the_lick = ["D4/8", "E4/8", "F4/8", "G4/8", "E4/4", "C4/8", "D4/4"]
-    triplets = ["C4/8", "C4/8", "C4/8", "C4/4"]
-    ending = ["Ab3/4", "Bb3/4", "C4/8.", "Bb3/16", "C4/4"]
+    nokia = ["E5/8", "D5/8", "F#4/4", "G#4/4", "C#5/8", "B4/8", "D4/4", "E4/4", "B4/8", "A4/8", "C#4/4", "E4/4", "A4/2", "R/2"]
 
-    ev3.speaker.play_notes(the_lick, tempo=160)
-    wait(1000)
-    ev3.speaker.play_notes(triplets, tempo=180)
-    wait(100)
-    ev3.speaker.play_notes(ending, tempo=150)
+    ev3.speaker.play_notes(nokia, tempo=200)
+    ev3.speaker.play_notes(nokia, tempo=200)
+
 
 
 def pickup(position):
