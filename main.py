@@ -22,6 +22,10 @@ LEFT = 160
 MIDDLE = 100
 RIGHT = 40
 
+# Define the colors
+COLOR_NAMES = {'#3477eb': 'Blue', '#ff0000': 'Red', '#e6cb22': 'Yellow', '#1de30b': 'Green'}
+COLORS = []
+
 
 def calibration():
     """Calibration of the sensors"""
@@ -74,27 +78,42 @@ def release(position):
     elbow_motor.run_target(60, 0)
 
 
-def color():
-    return color_sensor.color()
+def rgbp_to_hex(rgb):
+    rgb = tuple(round(p * 2.55) for p in rgb)
+    return '#{:02x}{:02x}{:02x}'.format(*rgb)
+
+
+def diff(h1, h2):
+    def hex_to_int(s):
+        return [int(s[i:i+2], 16) for i in range(1,7,2)]
+    return sum(abs(i - j) for i, j in zip(*map(hex_to_int, (h1, h2))))
+
+
+def color_index(color):
+    return COLORS.index(min([(c, diff(c, rgbp_to_hex(color))) for c in COLORS], key=lambda x: x[1])[0])
+
+
+def color_name(color):
+    return COLOR_NAMES[min([(c, diff(c, rgbp_to_hex(color))) for c, n in COLOR_NAMES.items()], key=lambda x: x[1])[0]]
 
 
 def main():
     """Main function"""
     calibration()
 
-    rightColor = Color.RED
-    leftColor = Color.BLUE
+    # rightColor = Color.RED
+    # leftColor = Color.BLUE
 
-    while True:
-        pickup(MIDDLE)
-        ev3.screen.clear()
-        ev3.screen.draw_text(40, 50, color())
-        if color() == rightColor:
-            release(RIGHT)
-        elif color() == leftColor:
-            release(LEFT)
-        else:
-            release(MIDDLE)
+    # while True:
+    #     pickup(MIDDLE)
+    #     ev3.screen.clear()
+    #     ev3.screen.draw_text(40, 50, color())
+    #     if color() == rightColor:
+    #         release(RIGHT)
+    #     elif color() == leftColor:
+    #         release(LEFT)
+    #     else:
+    #         release(MIDDLE)
 
 
 
