@@ -76,21 +76,25 @@ def release(position):
 
 
 def rgbp_to_hex(rgb):
+    """Returns the hex value of the color from the RGB percentage values"""
     rgb = tuple(round(p * 2.55) for p in rgb)
     return '#{:02x}{:02x}{:02x}'.format(*rgb)
 
 
 def diff(h1, h2):
+    """Returns how far apart two hex values are"""
     def hex_to_int(s):
         return [int(s[i:i+2], 16) for i in range(1,7,2)]
     return sum(abs(i - j) for i, j in zip(*map(hex_to_int, (h1, h2))))
 
 
 def color_index(color):
+    """Returns the color list index of which the color is at"""
     return COLORS.index(min([(c, diff(c, rgbp_to_hex(color))) for c in COLORS], key=lambda x: x[1])[0])
 
 
 def color_name(color):
+    """Returns the name of the color"""
     return COLOR_NAMES[min([(c, diff(c, rgbp_to_hex(color))) for c, n in COLOR_NAMES.items()], key=lambda x: x[1])[0]]
 
 
