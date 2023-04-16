@@ -1,7 +1,7 @@
 #!/usr/bin/env pybricks-micropython
 from pybricks.ev3devices import ColorSensor, Motor, TouchSensor
 from pybricks.hubs import EV3Brick
-from pybricks.parameters import Direction, Port, Stop, Color
+from pybricks.parameters import Direction, Port, Stop, Color, Button
 from pybricks.tools import wait
 
 
@@ -17,10 +17,8 @@ base_motor = Motor(Port.C, Direction.COUNTERCLOCKWISE, [12, 36])
 touch_sensor = TouchSensor(Port.S1)
 color_sensor = ColorSensor(Port.S2)
 
-# Define the three destinations for picking up and moving the wheel stacks.
-LEFT = 160
-MIDDLE = 100
-RIGHT = 40
+# List for the pickup and drop off locations
+LOCATIONS = []
 
 # Define the colors
 COLOR_NAMES = {'#3477eb': 'Blue', '#ff0000': 'Red', '#e6cb22': 'Yellow', '#1de30b': 'Green'}
@@ -61,19 +59,18 @@ def calibration():
     ev3.speaker.play_notes(nokia, tempo=200)
 
 
-
 def pickup(position):
     """Pickup item at position"""
-    base_motor.run_target(60, position)
-    elbow_motor.run_until_stalled(-80, then=Stop.COAST, duty_limit=30)
+    base_motor.run_target(60, position[0])
+    elbow_motor.run_target(60, position[1], then=Stop.HOLD)
     gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
     elbow_motor.run_target(60, 0)
 
 
 def release(position):
     """Release item at position"""
-    base_motor.run_target(60, position)
-    elbow_motor.run_until_stalled(-80, then=Stop.COAST, duty_limit=30)
+    base_motor.run_target(60, position[0])
+    elbow_motor.run_target(60, position[1], then=Stop.HOLD)
     gripper_motor.run_target(200, -90)
     elbow_motor.run_target(60, 0)
 
@@ -97,9 +94,44 @@ def color_name(color):
     return COLOR_NAMES[min([(c, diff(c, rgbp_to_hex(color))) for c, n in COLOR_NAMES.items()], key=lambda x: x[1])[0]]
 
 
+def set_location():
+    """Returns the angles of the set position"""
+    while Button.CENTER not in ev3.buttons.pressed():
+        if Button.LEFT in ev3.buttons.pressed():
+            base_motor.run(60)
+        elif Button.RIGHT in ev3.buttons.pressed():
+            base_motor.run(-60)
+        elif Button.UP in ev3.buttons.pressed():
+            elbow_motor.run(60)
+        elif Button.DOWN in ev3.buttons.pressed():
+            elbow_motor.run(-60)
+
+        base_motor.hold()
+        elbow_motor.hold()
+
+    elbow_motor.run_target(60, 0)
+    return (base_motor.angle(), elbow_motor.angle())
+
+
+def set_locations():
+    """Set the pickup and drop off locations"""
+    LOCATIONS.append(set_location())
+    set_more_locations = True
+
+    while set_more_locations:
+        if Button.CENTER in ev3.buttons.pressed():
+            pickup(LOCATIONS[0])
+            if is_item():                           # TODO: Add function
+                COLORS.append(color_sensor.rgb())
+                LOCATIONS.append(set_location())
+            else:
+                set_more_locations = False
+
+
 def main():
     """Main function"""
     calibration()
+    set_locations()
 
     # rightColor = Color.RED
     # leftColor = Color.BLUE
