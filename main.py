@@ -89,7 +89,7 @@ def diff(h1, h2):
 
 
 def color_index(color):
-    """Returns the color list index of which the color is at"""
+    """Returns the index to the closest color in COLORS"""
     return COLORS.index(min([(c, diff(c, rgbp_to_hex(color))) for c in COLORS], key=lambda x: x[1])[0])
 
 
@@ -126,7 +126,7 @@ def set_locations():
         if Button.CENTER in ev3.buttons.pressed():
             pickup(LOCATIONS[0])
             if is_item():                           # TODO: Add function
-                COLORS.append(color_sensor.rgb())
+                COLORS.append(rgbp_to_hex(color_sensor.rgb()))
                 LOCATIONS.append(set_location())
             else:
                 set_more_locations = False
