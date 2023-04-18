@@ -113,8 +113,9 @@ def set_location():
         base_motor.hold()
         elbow_motor.hold()
 
+    elbow_angle = elbow_motor.angle()
     elbow_motor.run_target(60, 0)
-    return (base_motor.angle(), elbow_motor.angle())
+    return (base_motor.angle(), elbow_angle)
 
 
 def set_locations():
@@ -124,7 +125,7 @@ def set_locations():
 
     while set_more_locations:
         if Button.CENTER in ev3.buttons.pressed():
-            pickup(LOCATIONS[0])
+            pickup(LOCATIONS[0])                    # ? Depends on is_item() function
             if is_item():                           # TODO: Add function
                 COLORS.append(rgbp_to_hex(color_sensor.rgb()))
                 LOCATIONS.append(set_location())
