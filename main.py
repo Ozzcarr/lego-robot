@@ -155,10 +155,9 @@ def main():
         return
 
     while True:
-        pickup(LOCATIONS[0])
         ev3.screen.clear()
 
-        if abs(gripper_motor.angle) < 5:
+        if not pickup(LOCATIONS[0]):
             ev3.screen.draw_text(40, 50, "No item")
             wait(3000)
             continue
