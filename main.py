@@ -141,25 +141,38 @@ def set_locations():
                 set_more_locations = False
 
 
+def ev3_light(color):
+    """Sets a color for the EV3 Brick light from color name"""
+    if color == 'Blue':
+        ev3.light.on(Color.BLUE)
+    elif color == 'Red':
+        ev3.light.on(Color.RED)
+    elif color == 'Yellow':
+        ev3.light.on(Color.YELLOW)
+    elif color == 'Green':
+        ev3.light.on(Color.GREEN)
+
+
 def main():
     """Main function"""
     calibration()
     set_locations()
 
-    # rightColor = Color.RED
-    # leftColor = Color.BLUE
+    if len(LOCATIONS) < 2:
+        return
 
-    # while True:
-    #     pickup(MIDDLE)
-    #     ev3.screen.clear()
-    #     ev3.screen.draw_text(40, 50, color())
-    #     if color() == rightColor:
-    #         release(RIGHT)
-    #     elif color() == leftColor:
-    #         release(LEFT)
-    #     else:
-    #         release(MIDDLE)
+    while True:
+        ev3.screen.clear()
 
+        if not pickup(LOCATIONS[0]):
+            ev3.screen.draw_text(40, 50, "No item")
+            wait(3000)
+            continue
+
+        color = color_sensor.rgb()
+        ev3.screen.draw_text(40, 50, color_name(color))
+        ev3_light(color_name(color))
+        release(LOCATIONS[color_index(color)+1])
 
 
 if __name__ == "__main__":
