@@ -60,11 +60,20 @@ def calibration():
 
 
 def pickup(position):
-    """Pickup item at position"""
+    """Checks if an item is at an location and pickup"""
     base_motor.run_target(60, position[0])
-    elbow_motor.run_target(60, position[1], then=Stop.HOLD)
-    gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
+    elbow_motor.run_target(80, position[1], then=Stop.HOLD)
+    gripper_motor.run(10)
+    if gripper_motor.speed() < 9:
+        gripper_motor.hold()
+
     elbow_motor.run_target(60, 0)
+
+    if gripper_motor.angle() > 10:
+        return True
+    else:
+        gripper_motor.run_target(200, -90)
+        return False
 
 
 def release(position):
