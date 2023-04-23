@@ -125,8 +125,7 @@ def set_locations():
 
     while set_more_locations:
         if Button.CENTER in ev3.buttons.pressed():
-            pickup(LOCATIONS[0])                    # ? Depends on is_item() function
-            if is_item():                           # TODO: Add function
+            if pickup(LOCATIONS[0]):
                 COLORS.append(rgbp_to_hex(color_sensor.rgb()))
                 LOCATIONS.append(set_location())
             else:
