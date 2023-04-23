@@ -62,6 +62,7 @@ def calibration():
 def pickup(position):
     """Pickup item at position"""
     base_motor.run_target(60, position[0])
+    gripper_motor.run_target(200, -90)
     elbow_motor.run_target(60, position[1], then=Stop.HOLD)
     gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
     elbow_motor.run_target(60, 0)
@@ -133,25 +134,39 @@ def set_locations():
                 set_more_locations = False
 
 
+def ev3_light(color):
+    """Sets a color for the EV3 Brick light from color name"""
+    if color == 'Blue':
+        ev3.light.on(Color.BLUE)
+    elif color == 'Red':
+        ev3.light.on(Color.RED)
+    elif color == 'Yellow':
+        ev3.light.on(Color.YELLOW)
+    elif color == 'Green':
+        ev3.light.on(Color.GREEN)
+
+
 def main():
     """Main function"""
     calibration()
     set_locations()
 
-    # rightColor = Color.RED
-    # leftColor = Color.BLUE
+    if len(LOCATIONS) < 2:
+        return
 
-    # while True:
-    #     pickup(MIDDLE)
-    #     ev3.screen.clear()
-    #     ev3.screen.draw_text(40, 50, color())
-    #     if color() == rightColor:
-    #         release(RIGHT)
-    #     elif color() == leftColor:
-    #         release(LEFT)
-    #     else:
-    #         release(MIDDLE)
+    while True:
+        pickup(LOCATIONS[0])
+        ev3.screen.clear()
 
+        if abs(gripper_motor.angle) < 5:
+            ev3.screen.draw_text(40, 50, "No item")
+            wait(3000)
+            continue
+
+        color = color_sensor.rgb()
+        ev3.screen.draw_text(40, 50, color_name(color))
+        ev3_light(color_name(color))
+        release(LOCATIONS[color_index(color)+1])
 
 
 if __name__ == "__main__":
