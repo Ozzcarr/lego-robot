@@ -136,7 +136,7 @@ def set_location():
 
     elbow_angle = elbow_motor.angle()
     gripper_motor.run_target(200, -90)
-    elbow_motor.run_target(60, 40)
+    elbow_motor.run_target(60, 0)
     return (base_motor.angle(), elbow_angle)
 
 
