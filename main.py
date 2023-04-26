@@ -56,8 +56,8 @@ def calibration():
     # Play music to indicate that the initialization is complete.
     nokia = ["E5/8", "D5/8", "F#4/4", "G#4/4", "C#5/8", "B4/8", "D4/4", "E4/4", "B4/8", "A4/8", "C#4/4", "E4/4", "A4/2", "R/2"]
 
-    # ev3.speaker.play_notes(nokia, tempo=200)
-    # ev3.speaker.play_notes(nokia, tempo=200)
+    ev3.speaker.play_notes(nokia, tempo=200)
+    ev3.speaker.play_notes(nokia, tempo=200)
 
 
 def pickup(position):
