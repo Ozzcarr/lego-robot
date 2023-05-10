@@ -220,7 +220,7 @@ def set_locations():
         if Button.CENTER in ev3.buttons.pressed():
             if pickup(PICKUP_LOCATION):
                 color = read_color()
-                COLORS.append(rgbp_to_hex(color))          
+                COLORS.append(rgbp_to_hex(color))       
                 LOCATIONS.append(set_location())
             else:
                 set_more_locations = False
@@ -284,6 +284,7 @@ def share_colors(mbox):
         mbox.send(color_message)
 
     COLORS.extend(mbox.read().split('*'))
+    wait(1000)
 
 
 def messaging(mbox):
