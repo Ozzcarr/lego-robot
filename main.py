@@ -54,7 +54,7 @@ def ev3_light(color=''):
 def wait_for_message(mbox, msg):
     """Waits for a matching bluetooth message"""
     while not mbox.read() == msg:
-        wait(1000)
+        wait(500)
 
 
 def raise_elbow(position):
@@ -347,7 +347,7 @@ def release_from_color(mbox):
 
         elif mbox.read() == M_OCC:
             wait_for_message(M_EMPTY)
-            mbox.send(M_EMPTY)
+            wait(2000)
             drop_at_shared_location(mbox)
 
         elif mbox.read() == M_LOCKED:
@@ -378,7 +378,13 @@ def robot_process(mbox):
             release_from_color(mbox)
 
         mbox.send(M_EMPTY)
-        wait_for_message(M_EMPTY)
+        while mbox.read() == M_PICKUP:
+            wait(200)
+
+    elif mbox.read() == M_LOCKED:
+        wait(2000)
+        return
+
     else:
         if not pickup(PICKUP_LOCATION):
             ev3.screen.print("No item")
@@ -396,6 +402,21 @@ def test_read_color_experimental():
         wait(500)
         gripper_motor.run_target(200, -90)
         wait(1500)
+
+
+def test_read_color():
+    calibration()
+    elbow_motor.run_until_stalled(-80, then=Stop.COAST, duty_limit=30)
+    gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
+    while True:
+        while Button.CENTER not in ev3.buttons.pressed():
+            while Button.UP in ev3.buttons.pressed():
+                elbow_motor.run(30)
+            while Button.DOWN in ev3.buttons.pressed():
+                elbow_motor.run(-30)
+
+        elbow_motor.hold()
+        ev3.screen.print(color_sensor.rgb())
 
 
 def main():
