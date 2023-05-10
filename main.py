@@ -68,7 +68,7 @@ def raise_elbow(position):
             max_angle = loc[1]
 
     elbow_motor.run_target(60, max_angle)
-    elbow_motor.run_time(60, 200)
+    elbow_motor.run_time(60, 800)
 
 
 def calibration(mbox=None):
@@ -101,22 +101,46 @@ def calibration(mbox=None):
     base_motor.hold()
 
     # Play music to indicate that the initialization is complete.
-    nokia = ["E5/8", "D5/8", "F#4/4", "G#4/4", "C#5/8", "B4/8", "D4/4", "E4/4", "B4/8", "A4/8", "C#4/4", "E4/4", "A4/2", "R/2"]
+    nokia = ["E4/8", "D4/8", "F#3/4", "G#3/4", "C#4/8", "B3/8", "D3/4", "E3/4", "B3/8", "A3/8", "C#3/4", "E3/4", "A3/2", "R/2"]
+    alexi = ["C4/16", "C4/16", "G4/16", "C4/16", "C4/16", "G4/16", "C4/16", "G4/16", 
+        "D#4/16", "D#4/16", "A#4/16", "D#4/16", "A#3/16", "A#3/16", "F4/16", "A#3/16", 
+
+        "C#4/16", "C#4/16", "G#4/16", "C#4/16", "C#4/16", "G#4/16", "C#4/16", "G#4/16", 
+        "G#3/16", "G#3/16", "D#4/16", "G#3/16", "G#3/16", "F3/16", "C4/16", "C4/16", 
+
+        "C4/16", "C4/16", "G4/16", "C4/16", "C4/16", "G4/16", "C4/16", "G4/16", 
+        "D#4/16", "D#4/16", "A#4/16", "D#4/16", "A#3/16", "A#3/16", "F4/16", "A#3/16", 
+
+        "C#4/16", "C#4/16", "G#4/16", "C#4/16", "C#4/16", "G#4/16", "C#4/16", "G#4/16", 
+        "G#3/16", "G#3/16", "D#4/16", "G#3/16", "A#3/16", "G3/16", "D4/16", "D4/16"]
+
+
+    roope = ["C4/16", "C4/16", "D#4/16", "C4/16", "C4/16", "D#4/16", "C4/16", "D#4/16", 
+        "D#4/16", "D#4/16", "G4/16", "D#4/16", "D4/16", "D4/16", "F4/16", "D4/16", 
+
+        "C#4/16", "C#4/16", "F4/16", "C#4/16", "C#4/16", "F4/16", "C#4/16", "F4/16", 
+        "G#3/16", "G#3/16", "C4/16", "G#3/16", "F3/16", "C4/16", "G#4/16", "G4/16", 
+
+        "C4/16", "C4/16", "D#4/16", "C4/16", "C4/16", "D#4/16", "C4/16", "D#4/16", 
+        "D#4/16", "D#4/16", "G4/16", "D#4/16", "D4/16", "D4/16", "F4/16", "D4/16", 
+
+        "C#4/16", "C#4/16", "F4/16", "C#4/16", "C#4/16", "F4/16", "C#4/16", "F4/16", 
+        "G#3/16", "G#3/16", "C4/16", "G#3/16", "G3/16", "D4/16", "A#4/16", "A4/16"]
 
     if MODE == 1:
         mbox.send(M_CALIBRATION_DONE)
         mbox.wait()
         ev3_light('Green')
-        ev3.speaker.play_notes(nokia, tempo=200)  # Server part
+        ev3.speaker.play_notes(alexi, tempo=96)  # Server part
     elif MODE == 2:
-        wait_for_message(M_CALIBRATION_DONE)
+        wait_for_message(mbox,M_CALIBRATION_DONE)
         mbox.send(M_CALIBRATION_DONE)
         # wait for timing ?
         ev3_light('Green')
-        ev3.speaker.play_notes(nokia, tempo=200)  # Client part
+        ev3.speaker.play_notes(roope, tempo=96)  # Client part
     else:
         ev3_light('Green')
-        ev3.speaker.play_notes(nokia, tempo=200)
+        #ev3.speaker.play_notes(nokia, tempo=200)
 
 
 def pickup(position):
@@ -124,6 +148,8 @@ def pickup(position):
     raise_elbow(position)
     base_motor.run_target(60, position[0])
     elbow_motor.run_target(80, position[1], then=Stop.HOLD)
+    wait(3000)
+
     gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
 
     gripper_motor.hold()
@@ -191,7 +217,7 @@ def set_location():
 
     elbow_angle = elbow_motor.angle()
     gripper_motor.run_target(200, -90)
-    elbow_motor.run_time(60, 200)
+    # elbow_motor.run_time(60, 200)
     # elbow_motor.run_target(60, 0)
     return (base_motor.angle(), elbow_angle)
 
@@ -234,12 +260,18 @@ def read_color():
 
 def set_locations():
     """Set the pickup and drop off locations"""
-    ev3.screen.print("Set pickup location")
-    PICKUP_LOCATION = set_location()
-
     if MODE != 0:
         ev3.screen.print("Set shared location")
+        global SHARED_LOCATION
         SHARED_LOCATION = set_location()
+
+    wait(1000)
+
+    ev3.screen.print("Set pickup location")
+    global PICKUP_LOCATION
+    PICKUP_LOCATION = set_location()
+
+    wait(1000)
 
     set_more_locations = True
     ev3.screen.print("Set drop-off locations")
@@ -256,7 +288,7 @@ def set_locations():
 
 def connect():
     """Connects to another robot via Bluetooth"""
-    if MODE == 2:
+    if MODE == 0:
         return None
     ev3_light('Orange')
 
@@ -278,8 +310,9 @@ def connect():
 
 def mode_selection():
     """Lets the user select the robot mode"""
-    ev3.screen.print("Press Up for Server. \n Press Down for client \n Press Left for default")  # ?
+    ev3.screen.print(" Up - Server. \n Down - client \n Left - default")  # ?
     ev3_light('Orange')
+    global MODE
     MODE = -1
     while MODE == -1:
         if Button.LEFT in ev3.buttons.pressed():
@@ -305,7 +338,7 @@ def share_colors(mbox):
 
     if MODE == 1:  # Server
         ev3.screen.print("Waiting for client")
-        wait_for_message(M_COLOR_DONE)
+        wait_for_message(mbox,M_COLOR_DONE)
         mbox.send(color_message)
         mbox.wait()
     elif MODE == 2:
@@ -333,7 +366,7 @@ def drop_at_shared_location(mbox):
     release(SHARED_LOCATION)
     move_base(PICKUP_LOCATION)
     mbox.send(M_PICKUP)
-    wait_for_message(M_OCC)
+    wait_for_message(mbox,M_OCC)
 
 
 def release_from_color(mbox):
@@ -346,7 +379,7 @@ def release_from_color(mbox):
             drop_at_shared_location(mbox)
 
         elif mbox.read() == M_OCC:
-            wait_for_message(M_EMPTY)
+            wait_for_message(mbox,M_EMPTY)
             wait(2000)
             drop_at_shared_location(mbox)
 
@@ -365,9 +398,10 @@ def release_from_color(mbox):
 
 def robot_process(mbox):
     """Robot process that loops"""
-    messaging(mbox)
+    if mbox is not None:
+        messaging(mbox)
 
-    if mbox.read() == M_PICKUP:
+    if mbox is not None and mbox.read() == M_PICKUP:
         mbox.send(M_OCC)
         if not pickup(SHARED_LOCATION):
             ev3.screen.print("No item")
@@ -381,7 +415,7 @@ def robot_process(mbox):
         while mbox.read() == M_PICKUP:
             wait(200)
 
-    elif mbox.read() == M_LOCKED:
+    elif mbox is not None and mbox.read() == M_LOCKED:
         wait(2000)
         return
 
