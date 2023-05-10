@@ -64,7 +64,7 @@ def raise_elbow(position):
     interval = (base_motor.angle(), position[0])
 
     for loc in LOCATIONS:
-        if min(interval) <= loc[0] <= max(interval) and loc[1] > max_angle:
+        if min(interval)-10 <= loc[0] <= max(interval)+10 and loc[1] > max_angle:
             max_angle = loc[1]
 
     elbow_motor.run_target(60, max_angle)
@@ -127,7 +127,7 @@ def pickup(position):
     gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
 
     gripper_motor.hold()
-    elbow_motor.run_target(60, 0)
+    # elbow_motor.run_target(60, 0)
 
     if gripper_motor.angle() < -5:
         return True
@@ -191,8 +191,36 @@ def set_location():
 
     elbow_angle = elbow_motor.angle()
     gripper_motor.run_target(200, -90)
-    elbow_motor.run_target(60, 0)
+    elbow_motor.run_time(60, 200)
+    # elbow_motor.run_target(60, 0)
     return (base_motor.angle(), elbow_angle)
+
+
+def read_color_experimental():
+    """Reads color_sensor value"""
+    red = 0
+    green = 0
+    blue = 0
+
+    elbow_motor.run_target(60, -5)
+    for i in range(5):
+        elbow_motor.run(25)
+        color = color_sensor.rgb()
+
+        if color[0] > red:
+            red = color[0]
+        if color[1] > green:
+            green = color[1]
+        if color[2] > blue:
+            blue = color[2]
+
+        wait(80)
+
+    color = (red, green, blue)
+    # ev3.screen.print(color_name(color))
+    ev3.screen.print(color)
+    ev3_light(color_name(color))
+    return color
 
 
 def read_color():
@@ -270,6 +298,9 @@ def mode_selection():
 
 def share_colors(mbox):
     """Shares the colors between the robots"""
+    if mbox is None:
+        return
+
     color_message = '*'.join(COLORS)
 
     if MODE == 1:  # Server
@@ -285,6 +316,7 @@ def share_colors(mbox):
 
     COLORS.extend(mbox.read().split('*'))
     wait(1000)
+    mbox.send(M_EMPTY)
 
 
 def messaging(mbox):
@@ -355,6 +387,17 @@ def robot_process(mbox):
             release_from_color(mbox)
 
 
+def test_read_color_experimental():
+    calibration()
+    while True:
+        elbow_motor.run_until_stalled(-80, then=Stop.COAST, duty_limit=30)
+        gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
+        read_color_experimental()
+        wait(500)
+        gripper_motor.run_target(200, -90)
+        wait(1500)
+
+
 def main():
     """Main function"""
     mode_selection()
@@ -362,7 +405,6 @@ def main():
     calibration(mbox)
     set_locations()
     share_colors(mbox)
-    mbox.send(M_EMPTY)
 
     ev3.screen.print("Main Loop")
     wait(5000)
