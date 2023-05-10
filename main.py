@@ -32,9 +32,6 @@ SERVER_NAME = 'ev3dev'
 M_CALIBRATION_DONE = 'calibration_done'
 M_COLOR_DONE = 'color_done'
 M_PICKUP = 'pickup'
-M_LOCKED = 'locked'
-M_EMPTY = 'empty'
-M_OCC = 'occupied'
 
 
 def ev3_light(color=''):
@@ -54,7 +51,7 @@ def ev3_light(color=''):
 def wait_for_message(mbox, msg):
     """Waits for a matching bluetooth message"""
     while not mbox.read() == msg:
-        wait(500)
+        wait(200)
 
 
 def raise_elbow(position):
@@ -85,7 +82,7 @@ def calibration(mbox=None):
 
     # Initialize the elbow
     elbow_motor.run_until_stalled(-30, then=Stop.COAST, duty_limit=50)
-    elbow_motor.run_time(-30, 1000)
+    # elbow_motor.run_time(-30, 1000)
     elbow_motor.run(15)
     while color_sensor.reflection() > 0:
         wait(10)
@@ -102,45 +99,44 @@ def calibration(mbox=None):
 
     # Play music to indicate that the initialization is complete.
     nokia = ["E4/8", "D4/8", "F#3/4", "G#3/4", "C#4/8", "B3/8", "D3/4", "E3/4", "B3/8", "A3/8", "C#3/4", "E3/4", "A3/2", "R/2"]
+
     alexi = ["C4/16", "C4/16", "G4/16", "C4/16", "C4/16", "G4/16", "C4/16", "G4/16", 
-        "D#4/16", "D#4/16", "A#4/16", "D#4/16", "A#3/16", "A#3/16", "F4/16", "A#3/16", 
+            "D#4/16", "D#4/16", "A#4/16", "D#4/16", "A#3/16", "A#3/16", "F4/16", "A#3/16", 
 
-        "C#4/16", "C#4/16", "G#4/16", "C#4/16", "C#4/16", "G#4/16", "C#4/16", "G#4/16", 
-        "G#3/16", "G#3/16", "D#4/16", "G#3/16", "G#3/16", "F3/16", "C4/16", "C4/16", 
+            "C#4/16", "C#4/16", "G#4/16", "C#4/16", "C#4/16", "G#4/16", "C#4/16", "G#4/16", 
+            "G#3/16", "G#3/16", "D#4/16", "G#3/16", "G#3/16", "F3/16", "C4/16", "C4/16", 
 
-        "C4/16", "C4/16", "G4/16", "C4/16", "C4/16", "G4/16", "C4/16", "G4/16", 
-        "D#4/16", "D#4/16", "A#4/16", "D#4/16", "A#3/16", "A#3/16", "F4/16", "A#3/16", 
+            "C4/16", "C4/16", "G4/16", "C4/16", "C4/16", "G4/16", "C4/16", "G4/16", 
+            "D#4/16", "D#4/16", "A#4/16", "D#4/16", "A#3/16", "A#3/16", "F4/16", "A#3/16", 
 
-        "C#4/16", "C#4/16", "G#4/16", "C#4/16", "C#4/16", "G#4/16", "C#4/16", "G#4/16", 
-        "G#3/16", "G#3/16", "D#4/16", "G#3/16", "A#3/16", "G3/16", "D4/16", "D4/16"]
-
+            "C#4/16", "C#4/16", "G#4/16", "C#4/16", "C#4/16", "G#4/16", "C#4/16", "G#4/16", 
+            "G#3/16", "G#3/16", "D#4/16", "G#3/16", "A#3/16", "G3/16", "D4/16", "D4/16"]
 
     roope = ["C4/16", "C4/16", "D#4/16", "C4/16", "C4/16", "D#4/16", "C4/16", "D#4/16", 
-        "D#4/16", "D#4/16", "G4/16", "D#4/16", "D4/16", "D4/16", "F4/16", "D4/16", 
+            "D#4/16", "D#4/16", "G4/16", "D#4/16", "D4/16", "D4/16", "F4/16", "D4/16", 
 
-        "C#4/16", "C#4/16", "F4/16", "C#4/16", "C#4/16", "F4/16", "C#4/16", "F4/16", 
-        "G#3/16", "G#3/16", "C4/16", "G#3/16", "F3/16", "C4/16", "G#4/16", "G4/16", 
+            "C#4/16", "C#4/16", "F4/16", "C#4/16", "C#4/16", "F4/16", "C#4/16", "F4/16", 
+            "G#3/16", "G#3/16", "C4/16", "G#3/16", "F3/16", "C4/16", "G#4/16", "G4/16", 
 
-        "C4/16", "C4/16", "D#4/16", "C4/16", "C4/16", "D#4/16", "C4/16", "D#4/16", 
-        "D#4/16", "D#4/16", "G4/16", "D#4/16", "D4/16", "D4/16", "F4/16", "D4/16", 
+            "C4/16", "C4/16", "D#4/16", "C4/16", "C4/16", "D#4/16", "C4/16", "D#4/16", 
+            "D#4/16", "D#4/16", "G4/16", "D#4/16", "D4/16", "D4/16", "F4/16", "D4/16", 
 
-        "C#4/16", "C#4/16", "F4/16", "C#4/16", "C#4/16", "F4/16", "C#4/16", "F4/16", 
-        "G#3/16", "G#3/16", "C4/16", "G#3/16", "G3/16", "D4/16", "A#4/16", "A4/16"]
+            "C#4/16", "C#4/16", "F4/16", "C#4/16", "C#4/16", "F4/16", "C#4/16", "F4/16", 
+            "G#3/16", "G#3/16", "C4/16", "G#3/16", "G3/16", "D4/16", "A#4/16", "A4/16"]
 
     if MODE == 1:
         mbox.send(M_CALIBRATION_DONE)
         mbox.wait()
         ev3_light('Green')
-        ev3.speaker.play_notes(alexi, tempo=96)  # Server part
+        ev3.speaker.play_notes(alexi, tempo=96)
     elif MODE == 2:
-        wait_for_message(mbox,M_CALIBRATION_DONE)
+        wait_for_message(mbox, M_CALIBRATION_DONE)
         mbox.send(M_CALIBRATION_DONE)
-        # wait for timing ?
         ev3_light('Green')
-        ev3.speaker.play_notes(roope, tempo=96)  # Client part
+        ev3.speaker.play_notes(roope, tempo=96)
     else:
         ev3_light('Green')
-        #ev3.speaker.play_notes(nokia, tempo=200)
+        ev3.speaker.play_notes(nokia, tempo=200)
 
 
 def pickup(position):
@@ -151,9 +147,7 @@ def pickup(position):
     wait(3000)
 
     gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
-
     gripper_motor.hold()
-    # elbow_motor.run_target(60, 0)
 
     if gripper_motor.angle() < -5:
         return True
@@ -168,7 +162,6 @@ def release(position):
     base_motor.run_target(60, position[0])
     elbow_motor.run_target(60, position[1], then=Stop.HOLD)
     gripper_motor.run_target(200, -90)
-    # elbow_motor.run_target(60, 40)
 
 
 def rgbp_to_hex(rgb):
@@ -217,36 +210,7 @@ def set_location():
 
     elbow_angle = elbow_motor.angle()
     gripper_motor.run_target(200, -90)
-    # elbow_motor.run_time(60, 200)
-    # elbow_motor.run_target(60, 0)
     return (base_motor.angle(), elbow_angle)
-
-
-def read_color_experimental():
-    """Reads color_sensor value"""
-    red = 0
-    green = 0
-    blue = 0
-
-    elbow_motor.run_target(60, -5)
-    for i in range(5):
-        elbow_motor.run(25)
-        color = color_sensor.rgb()
-
-        if color[0] > red:
-            red = color[0]
-        if color[1] > green:
-            green = color[1]
-        if color[2] > blue:
-            blue = color[2]
-
-        wait(80)
-
-    color = (red, green, blue)
-    # ev3.screen.print(color_name(color))
-    ev3.screen.print(color)
-    ev3_light(color_name(color))
-    return color
 
 
 def read_color():
@@ -260,17 +224,22 @@ def read_color():
 
 def set_locations():
     """Set the pickup and drop off locations"""
-    if MODE != 0:
+    pos = PICKUP_LOCATION
+
+    if MODE == 1 or MODE == 2:
         ev3.screen.print("Set shared location")
         global SHARED_LOCATION
         SHARED_LOCATION = set_location()
-
     wait(1000)
 
-    ev3.screen.print("Set pickup location")
+    if MODE == 0 or MODE == 1:
+        ev3.screen.print("Set pickup location")
+    elif MODE == 2:
+        ev3.screen.print("Set rest position")
+        pos = SHARED_LOCATION
+
     global PICKUP_LOCATION
     PICKUP_LOCATION = set_location()
-
     wait(1000)
 
     set_more_locations = True
@@ -278,9 +247,9 @@ def set_locations():
 
     while set_more_locations:
         if Button.CENTER in ev3.buttons.pressed():
-            if pickup(PICKUP_LOCATION):
+            if pickup(pos):
                 color = read_color()
-                COLORS.append(rgbp_to_hex(color))       
+                COLORS.append(rgbp_to_hex(color))
                 LOCATIONS.append(set_location())
             else:
                 set_more_locations = False
@@ -310,7 +279,7 @@ def connect():
 
 def mode_selection():
     """Lets the user select the robot mode"""
-    ev3.screen.print(" Up - Server. \n Down - client \n Left - default")  # ?
+    ev3.screen.print(" Up - Server. \nDown - client \nLeft - default")  # ?
     ev3_light('Orange')
     global MODE
     MODE = -1
@@ -325,48 +294,31 @@ def mode_selection():
             MODE = 2
             ev3.screen.print("Client picked!")
     ev3_light('Green')
-    wait(1500)
+    wait(1000)
     return
 
 
 def share_colors(mbox):
-    """Shares the colors between the robots"""
+    """Shares client colors to server"""
     if mbox is None:
         return
 
     color_message = '*'.join(COLORS)
 
-    if MODE == 1:  # Server
+    if MODE == 1:
         ev3.screen.print("Waiting for client")
-        wait_for_message(mbox,M_COLOR_DONE)
-        mbox.send(color_message)
+        wait_for_message(mbox, M_COLOR_DONE)
+        mbox.send(M_COLOR_DONE)
         mbox.wait()
+        COLORS.extend(mbox.read().split('*'))
     elif MODE == 2:
         mbox.send(M_COLOR_DONE)
         ev3.screen.print("Waiting for server")
         mbox.wait()
         mbox.send(color_message)
 
-    COLORS.extend(mbox.read().split('*'))
     wait(1000)
-    mbox.send(M_EMPTY)
-
-
-def messaging(mbox):
-    """Responds to messages"""
-    if mbox.read() == M_LOCKED or mbox.read() == M_PICKUP:
-        mbox.send(M_OCC)
-    elif mbox.read() == M_EMPTY:
-        mbox.send(M_EMPTY)
-
-
-def drop_at_shared_location(mbox):
-    """Drops an item at the shared location"""
-    mbox.send(M_LOCKED)
-    release(SHARED_LOCATION)
-    move_base(PICKUP_LOCATION)
     mbox.send(M_PICKUP)
-    wait_for_message(mbox,M_OCC)
 
 
 def release_from_color(mbox):
@@ -375,82 +327,32 @@ def release_from_color(mbox):
     index = color_index(color)
 
     if index >= len(LOCATIONS):  # Drop off at shared location
-        if mbox.read() == M_EMPTY:
-            drop_at_shared_location(mbox)
-
-        elif mbox.read() == M_OCC:
-            wait_for_message(mbox,M_EMPTY)
-            wait(2000)
-            drop_at_shared_location(mbox)
-
-        elif mbox.read() == M_LOCKED:
-            mbox.send(M_OCC)
-            release(PICKUP_LOCATION)
-            mbox.wait()
-
-        elif mbox.read() == M_PICKUP:
-            mbox.send(M_OCC)
-            release(PICKUP_LOCATION)
-
+        release(SHARED_LOCATION)
+        move_base(PICKUP_LOCATION)
+        mbox.send(M_PICKUP)
+        mbox.wait()
     else:
         release(LOCATIONS[index])
 
 
+def try_pickup(position, mbox):
+    """Attempts to pickup an item at a given position"""
+    if not pickup(position):
+        ev3.screen.print("No item")
+        wait(3000)
+    else:
+        release_from_color(mbox)
+
+
 def robot_process(mbox):
     """Robot process that loops"""
-    if mbox is not None:
-        messaging(mbox)
-
-    if mbox is not None and mbox.read() == M_PICKUP:
-        mbox.send(M_OCC)
-        if not pickup(SHARED_LOCATION):
-            ev3.screen.print("No item")
-            move_base(PICKUP_LOCATION)
-        else:
-            move_base(PICKUP_LOCATION)
-            mbox.send(M_EMPTY)
-            release_from_color(mbox)
-
-        mbox.send(M_EMPTY)
-        while mbox.read() == M_PICKUP:
-            wait(200)
-
-    elif mbox is not None and mbox.read() == M_LOCKED:
-        wait(2000)
-        return
-
-    else:
-        if not pickup(PICKUP_LOCATION):
-            ev3.screen.print("No item")
-            wait(3000)
-        else:
-            release_from_color(mbox)
-
-
-def test_read_color_experimental():
-    calibration()
-    while True:
-        elbow_motor.run_until_stalled(-80, then=Stop.COAST, duty_limit=30)
-        gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
-        read_color_experimental()
-        wait(500)
-        gripper_motor.run_target(200, -90)
-        wait(1500)
-
-
-def test_read_color():
-    calibration()
-    elbow_motor.run_until_stalled(-80, then=Stop.COAST, duty_limit=30)
-    gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
-    while True:
-        while Button.CENTER not in ev3.buttons.pressed():
-            while Button.UP in ev3.buttons.pressed():
-                elbow_motor.run(30)
-            while Button.DOWN in ev3.buttons.pressed():
-                elbow_motor.run(-30)
-
-        elbow_motor.hold()
-        ev3.screen.print(color_sensor.rgb())
+    if MODE == 0 or MODE == 1:
+        try_pickup(PICKUP_LOCATION, mbox)
+    elif MODE == 2:
+        move_base(PICKUP_LOCATION)  # Resting position
+        mbox.wait()
+        try_pickup(SHARED_LOCATION, mbox)
+        mbox.send(M_PICKUP)
 
 
 def main():
@@ -462,7 +364,7 @@ def main():
     share_colors(mbox)
 
     ev3.screen.print("Main Loop")
-    wait(5000)
+    wait(2000)
 
     while True:
         robot_process(mbox)
