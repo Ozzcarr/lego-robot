@@ -60,12 +60,15 @@ def raise_elbow(position):
     max_angle = elbow_angle
     interval = (base_motor.angle(), position[0])
 
-    for loc in LOCATIONS:
-        if min(interval)-10 <= loc[0] <= max(interval)+10 and loc[1] > max_angle:
-            max_angle = loc[1]
+    ALL_LOC = LOCATIONS.copy()
+    if MODE != 0:
+        ALL_LOC.append(SHARED_LOCATION)
+    for loc in ALL_LOC:
+        if min(interval)-10 <= loc[0] <= max(interval)+10 and loc[1] + 15 > max_angle:
+            max_angle = loc[1] + 15
 
-    elbow_motor.run_target(60, max_angle)
-    elbow_motor.run_time(60, 800)
+    if elbow_angle < max_angle:
+        elbow_motor.run_target(60, max_angle)
 
 
 def calibration(mbox=None):
@@ -81,8 +84,7 @@ def calibration(mbox=None):
     gripper_motor.run_target(200, -90)
 
     # Initialize the elbow
-    elbow_motor.run_until_stalled(-30, then=Stop.COAST, duty_limit=50)
-    # elbow_motor.run_time(-30, 1000)
+    elbow_motor.run_until_stalled(-30, then=Stop.COAST, duty_limit=30)
     elbow_motor.run(15)
     while color_sensor.reflection() > 0:
         wait(10)
@@ -98,7 +100,7 @@ def calibration(mbox=None):
     base_motor.hold()
 
     # Play music to indicate that the initialization is complete.
-    nokia = ["E4/8", "D4/8", "F#3/4", "G#3/4", "C#4/8", "B3/8", "D3/4", "E3/4", "B3/8", "A3/8", "C#3/4", "E3/4", "A3/2", "R/2"]
+    nokia = ["E5/8", "D5/8", "F#4/4", "G#4/4", "C#5/8", "B4/8", "D4/4", "E4/4", "B4/8", "A4/8", "C#4/4", "E4/4", "A4/2", "R/2"]
 
     alexi = ["C4/16", "C4/16", "G4/16", "C4/16", "C4/16", "G4/16", "C4/16", "G4/16", 
             "D#4/16", "D#4/16", "A#4/16", "D#4/16", "A#3/16", "A#3/16", "F4/16", "A#3/16", 
@@ -139,12 +141,12 @@ def calibration(mbox=None):
         ev3.speaker.play_notes(nokia, tempo=200)
 
 
-def pickup(position):
+def pickup(position, pause=3000):
     """Checks if an item is at an location and pickup"""
     raise_elbow(position)
     base_motor.run_target(60, position[0])
     elbow_motor.run_target(80, position[1], then=Stop.HOLD)
-    wait(3000)
+    wait(pause)
 
     gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
     gripper_motor.hold()
@@ -166,8 +168,11 @@ def release(position):
 
 def rgbp_to_hex(rgb):
     """Returns the hex value of the color from the RGB percentage values"""
-    rgb = tuple(round(p * 2.55) for p in rgb)
-    return '#{:02x}{:02x}{:02x}'.format(*rgb)
+    if rgb[0] == '#':
+        return rgb
+    else:
+        rgb = tuple(round(p * 2.55) for p in rgb)
+        return '#{:02x}{:02x}{:02x}'.format(*rgb)
 
 
 def diff(h1, h2):
@@ -224,7 +229,6 @@ def read_color():
 
 def set_locations():
     """Set the pickup and drop off locations"""
-    pos = PICKUP_LOCATION
 
     if MODE == 1 or MODE == 2:
         ev3.screen.print("Set shared location")
@@ -236,23 +240,39 @@ def set_locations():
         ev3.screen.print("Set pickup location")
     elif MODE == 2:
         ev3.screen.print("Set rest position")
-        pos = SHARED_LOCATION
 
     global PICKUP_LOCATION
     PICKUP_LOCATION = set_location()
     wait(1000)
+    ev3.screen.print("Position set")
 
     set_more_locations = True
     ev3.screen.print("Set drop-off locations")
+    ev3.screen.print("Click to set \nnew position")
 
     while set_more_locations:
         if Button.CENTER in ev3.buttons.pressed():
-            if pickup(pos):
-                color = read_color()
-                COLORS.append(rgbp_to_hex(color))
-                LOCATIONS.append(set_location())
-            else:
-                set_more_locations = False
+            if MODE == 0 or MODE == 1:
+                if pickup(PICKUP_LOCATION):
+                    color = read_color()
+                    COLORS.append(rgbp_to_hex(color))
+                    ev3.screen.print("Set new location")
+                    LOCATIONS.append(set_location())
+                    ev3.screen.print("Click to set \nnew position")
+                else:
+                    set_more_locations = False
+            elif MODE == 2:
+                if pickup(SHARED_LOCATION):
+                    color = read_color()
+                    COLORS.append(rgbp_to_hex(color))
+                    ev3.screen.print("Set new location")
+                    LOCATIONS.append(set_location())
+                    ev3.screen.print("Click to set \nnew position")
+                else:
+                    set_more_locations = False
+
+    if MODE == 2:
+        move_base(PICKUP_LOCATION)
 
 
 def connect():
@@ -323,21 +343,32 @@ def share_colors(mbox):
 
 def release_from_color(mbox):
     """Releases an item based on its color"""
-    color = read_color()
+    color = None
+    if MODE == 0 or MODE == 1:
+        color = read_color()
+    elif MODE == 2:
+        color = mbox.read()
+
     index = color_index(color)
 
     if index >= len(LOCATIONS):  # Drop off at shared location
         release(SHARED_LOCATION)
         move_base(PICKUP_LOCATION)
-        mbox.send(M_PICKUP)
+        mbox.send(rgbp_to_hex(color))
         mbox.wait()
     else:
+        ev3_light(color_name(color))
         release(LOCATIONS[index])
+    ev3_light()
 
 
 def try_pickup(position, mbox):
     """Attempts to pickup an item at a given position"""
-    if not pickup(position):
+    pause = 3000
+    if MODE == 2:
+        pause = 0
+
+    if not pickup(position, pause):
         ev3.screen.print("No item")
         wait(3000)
     else:
@@ -351,6 +382,7 @@ def robot_process(mbox):
     elif MODE == 2:
         move_base(PICKUP_LOCATION)  # Resting position
         mbox.wait()
+        ev3_light(color_name(mbox.read()))
         try_pickup(SHARED_LOCATION, mbox)
         mbox.send(M_PICKUP)
 
@@ -372,3 +404,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
