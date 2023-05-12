@@ -2,15 +2,18 @@
 
 ![The robot](http://robotsquare.com/wp-content/uploads/2013/10/45544_crane-550x227.jpg)
 
-This is a repository for the development of the lego robot that shall lift items.
+## Introduction
+This part should give a general introduction to your project.
 
-## How to use
+## Getting started
+This section is supposed to guide a new developer through the steps of how to set up the project and install the dependencies they need to start developing.
 
-### Main branch
-Branch for stable product - Merge from the develop branch after every workshop.
+## Building and running
+This is where you explain how to make the project run. What is your startup procedure? Does the program accept different arguments to do different things?
+You should also describe how to operate your program. Does it need manual input before it starts picking up and sorting the items?
 
-### Develop branch
-The branch for developing the features - Merge from feature branch when a feature is developed.
+## Features
+Lastly, you should write which of the user stories you did and didn't develop in this project, in the form of a checklist. Like this:
 
-### Feature branches
-Branches for developing specific features - Create new branch from the develop branch and add a pull request to merge when completed.
+- [x] US_1: As a user I want to...
+- [ ] US_2: As a user I want to...
